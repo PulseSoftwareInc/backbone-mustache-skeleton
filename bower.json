@@ -1,0 +1,25 @@
+{
+  "name": "backbone-example",
+  "version": "0.0.1",
+  "authors": [
+    "Erick Tai <etai@pulsehr.net>"
+  ],
+  "description": "Example of Pulse's Backbone usage",
+  "main": "index.html",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "app/bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~2.1.1",
+    "backbone": "~1.1.2",
+    "underscore": "~1.7.0",
+    "mustache.js": "~0.8.2"
+  }
+}

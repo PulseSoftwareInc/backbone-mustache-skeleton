@@ -1,0 +1,202 @@
+<html>
+	<head>
+		<script src="bower_components/jquery/dist/jquery.min.js"></script>
+		<script src="bower_components/underscore/underscore-min.js"></script>
+		<script src="bower_components/backbone/backbone.js"></script>
+		<script src="bower_components/mustache.js/mustache.js"></script>
+
+		<script id="profile-template" type="x-tmpl-mustache">
+			{{#hasUser}}
+				<div class="avatar">
+					<img src={{avatarURL}} alt="Picture of {{fullName}}"/>
+				</div>
+				<div class="details">
+					<p>Name: {{fullName}}</p>
+					<p>Last Logged In: {{lastLogin}}</p>
+					<p>Is logged in: {{isLoggedIn}}</p>
+				</div>			
+			{{/hasUser}}
+			{{^hasUser}}
+				No user selected.
+			{{/hasUser}}
+			
+		</script>
+
+		<script id="profile-list-template" type="x-tmpl-mustache">
+			<ul>
+				{{#users}}
+					<li><a href="#profile/{{email}}">{{email}}</a></li>
+				{{/users}}
+			</ul>
+		</script>
+		
+
+		<script type="text/javascript">
+		//ghetto way of representing users.  pretend this is loaded via AJAX in some proper Backbone code somewhere
+		function getUsers() {
+			//Hard code users.  Typically these would be retrieved via JSON
+			var user1 = new PulseUser({
+				firstName: 'Erick',
+				lastName: 'Tai',
+				email: 'fake-erick@pulsehr.net',
+				avatarURL: 'https://d2kahs6as972iy.cloudfront.net/pulsehr.net/etai.jpg'
+			});
+
+			var user2 = new PulseUser({
+				firstName: 'Rajeev',
+				lastName: 'Behera',
+				email: 'fake-rajeev@pulsehr.net',
+				avatarURL: 'https://d2kahs6as972iy.cloudfront.net/pulsehr.net/rbehera.jpg'
+			});
+
+			var user3 = new PulseUser({
+				firstName: 'Jimmie',
+				lastName: 'Tyrrell',
+				email: 'fake-jimmie@pulsehr.net',
+				avatarURL: 'https://d2kahs6as972iy.cloudfront.net/pulsehr.net/jtyrrell.jpg'
+			});
+
+			var users = new PulseUsers([user1, user2, user3]);
+			return users;
+		}
+
+		// This is a Backbone Model representing a User.  See Backbone.Model docs
+		var PulseUser = Backbone.Model.extend({
+			isLoggedIn: function() {
+				//hardcoded just for example
+				if (this.get('email') == 'etai@pulsehr.net') return false;
+
+				return true;
+			},
+
+			getFullName: function() {
+				return this.get('firstName') + ' ' + this.get('lastName');
+			},
+
+			getLastLoggedIn: function() {
+				//setting random date as an example
+				return new Date();
+			}
+		});
+
+		// Represents a collection/array of Backbone Models.  See Backbone.Collection docs
+		var PulseUsers = Backbone.Collection.extend({
+			model: PulseUser
+		});
+
+
+		var UsersListView = Backbone.View.extend({
+			render: function() {
+				var users = getUsers();
+				var template = $('#profile-list-template').html();
+  			Mustache.parse(template);   // optional, speeds up future uses
+
+  			var rendered = Mustache.render(template, {
+  				users: users.toJSON()
+  			});
+
+				this.$el.html(rendered);
+			}
+		});
+
+
+		/* This is a Backbone View object that handles all logic for the UI */
+		var ProfileView = Backbone.View.extend({
+
+			update: function(user) {
+				this.user = user;
+				this.render();
+			},
+
+			render: function() {
+				var template = $('#profile-template').html();
+  			Mustache.parse(template);   // optional, speeds up future uses
+
+  			var renderData = {
+  				hasUser: (this.user != null)
+  			};
+
+  			if (this.user != null) {
+  				_.extend(renderData, this.user.toJSON());  //take { hasUser: true } and merge it with { firstName: 'Erick', lastName: 'Tai', etc..}
+
+  				//or just add properties one by one
+  				renderData.fullName = this.user.getFullName();
+  				renderData.lastLogin = this.user.getLastLoggedIn();
+  				renderData.isLoggedIn = this.user.isLoggedIn();
+  			}
+
+  			var rendered = Mustache.render(template, renderData);
+  			this.$el.html(rendered);
+			}
+		});
+
+
+		/* The Backbone Router kicks off the actual Backbone application */
+		var AppRouter = Backbone.Router.extend({
+
+		  routes: {
+		    'profile/:email': 'showProfile',
+		    '*path':  'defaultRoute'
+		  },
+
+		  showProfile: function(email) {
+		  	var usersListView = new UsersListView({
+		  		el: '#users-list'
+		  	});
+
+		  	var profileView = new ProfileView({
+		  		el: '#profile'
+		  	});
+
+		  	usersListView.render();
+
+		  	var users = getUsers();
+
+		  	//using the #find method on a Backbone.Collection.  Same as underscore.js's _.find(..)
+		  	var selectedUser = users.find(function(user) {
+		  		return user.get('email') == email;
+		  	})
+
+		  	profileView.update(selectedUser);
+		  },
+
+		  defaultRoute: function() {
+
+		  	console.debug('STARTING APP');
+
+		  	var usersListView = new UsersListView({
+		  		el: '#users-list'
+		  	});
+
+		  	var profileView = new ProfileView({
+		  		el: '#profile'
+		  	});
+
+		  	usersListView.render();
+
+		  	profileView.render();
+
+		  }
+
+		});
+
+		/* START THE APP */
+		$(document).ready(function() {
+			var router = new AppRouter();
+			Backbone.history.start();
+		});
+
+		</script>
+
+
+
+	</head>
+	<body>
+
+
+	<div id="users-list"></div>
+	<div id="profile"></div>		
+
+
+	</body>
+</html>
