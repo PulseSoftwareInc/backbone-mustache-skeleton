@@ -6,29 +6,29 @@
   <script src="../public/bower_components/mustache.js/mustache.js"></script>
 
   <script id="profile-template" type="x-tmpl-mustache">
-			{{#hasUser}}
-				<div class="avatar">
-					<img src={{avatarURL}} alt="Picture of {{fullName}}"/>
-				</div>
-				<div class="details">
-					<p>Name: {{fullName}}</p>
-					<p>Last Logged In: {{lastLogin}}</p>
-					<p>Is logged in: {{isLoggedIn}}</p>
-				</div>			
-			{{/hasUser}}
-			{{^hasUser}}
-				No user selected.
-			{{/hasUser}}
-			
+    {{#hasUser}}
+      <div class="avatar">
+        <img src={{avatarURL}} alt="Picture of {{fullName}}"/>
+      </div>
+      <div class="details">
+        <p>Name: {{fullName}}</p>
+        <p>Last Logged In: {{lastLogin}}</p>
+        <p>Is logged in: {{isLoggedIn}}</p>
+      </div>
+    {{/hasUser}}
+    {{^hasUser}}
+      No user selected.
+    {{/hasUser}}
+
 
   </script>
 
   <script id="profile-list-template" type="x-tmpl-mustache">
-			<ul>
-				{{#users}}
-					<li><a href="#profile/{{email}}">{{email}}</a></li>
-				{{/users}}
-			</ul>
+    <ul>
+      {{#users}}
+        <li><a href="#profile/{{email}}">{{email}}</a></li>
+      {{/users}}
+    </ul>
 
   </script>
 
