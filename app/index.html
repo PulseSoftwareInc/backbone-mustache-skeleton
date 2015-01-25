@@ -14,6 +14,7 @@
         <p>Name: {{fullName}}</p>
         <p>Last Logged In: {{lastLogin}}</p>
         <p>Is logged in: {{isLoggedIn}}</p>
+        <p><a href="#testView">Show more info</a><p>
       </div>
     {{/hasUser}}
     {{^hasUser}}
@@ -32,6 +33,12 @@
 
   </script>
 
+  <script id="testView-template" type="x-tmpl-mustache">
+    <div>
+      <h2>This is my Test View!</h2>
+      <p><a href="index.html">Back to Home</a></p>
+    </div>
+  </script>
 
   <script type="text/javascript">
     //ghetto way of representing users.  pretend this is loaded via AJAX in some proper Backbone code somewhere
@@ -98,7 +105,12 @@
         });
 
         this.$el.html(rendered);
+      },
+
+      toggle: function(){
+        this.$el.toggle();
       }
+
     });
 
 
@@ -129,25 +141,80 @@
 
         var rendered = Mustache.render(template, renderData);
         this.$el.html(rendered);
+      },
+
+      toggle: function(){
+
+        this.$el.toggle();
       }
+
     });
 
+    var TestView = Backbone.View.extend({
+
+      render: function(){
+
+        var template = $('#testView-template').html();
+        Mustache.parse(template);   // optional, speeds up future uses
+
+        var rendered = Mustache.render(template);
+        this.$el.html(rendered);
+      },
+
+      toggle: function(){
+
+        this.$el.toggle();
+      }
+
+    });
 
     /* The Backbone Router kicks off the actual Backbone application */
     var AppRouter = Backbone.Router.extend({
 
       routes: {
+        'testView': 'showTestView',
         'profile/:email': 'showProfile',
         '*path': 'defaultRoute'
       },
 
-      showProfile: function (email) {
+      showTestView: function () {
+
+        console.log('SHOW TEST VIEW')
+
         var usersListView = new UsersListView({
           el: '#users-list'
         });
 
         var profileView = new ProfileView({
           el: '#profile'
+        });
+
+        var testView = new TestView({
+          el: '#testView'
+        });
+
+        testView.render();
+
+        profileView.toggle();
+
+        usersListView.toggle();
+
+      },
+
+      showProfile: function (email) {
+
+        console.log('GET PROFILE');
+
+        var usersListView = new UsersListView({
+          el: '#users-list'
+        });
+
+        var profileView = new ProfileView({
+          el: '#profile'
+        });
+
+        var testView = new TestView({
+          el: '#testView'
         });
 
         usersListView.render();
@@ -160,11 +227,12 @@
         })
 
         profileView.update(selectedUser);
+
       },
 
       defaultRoute: function () {
 
-        console.debug('STARTING APP');
+        console.log('STARTING APP');
 
         var usersListView = new UsersListView({
           el: '#users-list'
@@ -197,6 +265,7 @@
 
 <div id="users-list"></div>
 <div id="profile"></div>
+<div id="testView"></div>
 
 
 </body>
